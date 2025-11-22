@@ -6,13 +6,68 @@ import bcrypt from "bcryptjs";
 
 const router = express.Router();
 
+// REGISTER
 router.post("/register", registerUser);
+
+// LOGIN
 router.post("/login", loginUser);
 
+// GET LOGGED-IN USER
 router.get("/me", authMiddleware, async (req, res) => {
   res.json(req.user);
 });
 
+// CHANGE PASSWORD
+router.put("/change-password", authMiddleware, async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user.id).select("+password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const match = await bcrypt.compare(oldPassword, user.password);
+    if (!match) {
+      return res.status(400).json({ message: "Wrong old password" });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: "Password changed",
+    });
+  } catch (err) {
+    console.error("Password change error:", err);
+    next(err);
+  }
+});
+
+// DELETE ACCOUNT
+router.delete("/delete", authMiddleware, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    const deleted = await User.findByIdAndDelete(userId);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.json({
+      success: true,
+      message: "Account deleted successfully",
+    });
+  } catch (err) {
+    console.error("Delete error:", err);
+    next(err);
+  }
+});
+
+// UPDATE PROFILE
 router.put("/update", authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -32,42 +87,6 @@ router.put("/update", authMiddleware, async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: "Update failed", error: err.message });
-  }
-});
-
-// CHANGE PASSWORD
-router.put("/change-password", authMiddleware, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { oldPassword, newPassword } = req.body;
-
-    const user = await User.findById(userId);
-
-    const match = await bcrypt.compare(oldPassword, user.password);
-    if (!match) return res.status(400).json({ message: "Wrong old password" });
-
-    const hashed = await bcrypt.hash(newPassword, 10);
-    user.password = hashed;
-    await user.save();
-
-    res.json({ success: true, message: "Password changed" });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Password update failed", error: err.message });
-  }
-});
-
-// DELETE ACCOUNT
-router.delete("/delete", authMiddleware, async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    await User.findByIdAndDelete(userId);
-
-    res.json({ success: true, message: "Account deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ message: "Delete failed", error: err.message });
   }
 });
 

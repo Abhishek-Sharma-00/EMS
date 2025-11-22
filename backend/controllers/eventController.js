@@ -29,7 +29,9 @@ export const createEvent = async (req, res) => {
 
 // UPDATE EVENT
 export const updateEvent = async (req, res) => {
-  const updated = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  const updated = await Event.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
   res.json(updated);
 };
 
@@ -49,18 +51,16 @@ export const deleteEvent = async (req, res) => {
     }
 
     res.json({ message: "Event deleted successfully" });
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// 🗑 Delete Attendee Registration
+// Delete Attendee Registration
 export const deleteRegistration = async (req, res) => {
   try {
     const attendeeId = req.params.id;
 
-    // Find the attendee before delete
     const attendee = await Attendee.findById(attendeeId);
     if (!attendee) {
       return res.status(404).json({ message: "Registration not found" });
@@ -68,20 +68,18 @@ export const deleteRegistration = async (req, res) => {
 
     const eventId = attendee.eventId;
 
-    // Delete attendee
     await Attendee.findByIdAndDelete(attendeeId);
 
-    // Update event count
     if (eventId) {
       await Event.findByIdAndUpdate(eventId, {
         $inc: { currentRegistrations: -1 },
       });
     }
 
-    res.json({ message: "Registration deleted and event updated successfully" });
-
+    res.json({
+      message: "Registration deleted and event updated successfully",
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-

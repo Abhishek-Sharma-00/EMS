@@ -1,5 +1,4 @@
 import User from "../models/User.js";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 // GENERATE TOKEN FUNCTION
@@ -10,19 +9,21 @@ const generateToken = (id) => {
 // REGISTER
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, phone, password, role } = req.body;
 
-    if (!name || !email || !password)
+    if (!name || !email || !phone || !password)
       return res.status(400).json({ message: "All fields required" });
 
     const exists = await User.findOne({ email });
-    if (exists) return res.status(400).json({ message: "Email already exists" });
+    if (exists)
+      return res.status(400).json({ message: "Email already exists" });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = password;
 
     const newUser = await User.create({
       name,
       email,
+      phone,
       password: hashedPassword,
       role,
     });
@@ -36,6 +37,7 @@ export const registerUser = async (req, res) => {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
+        phone: newUser.phone,
         role: newUser.role,
       },
     });
@@ -52,7 +54,7 @@ export const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid email" });
 
-    const match = await bcrypt.compare(password, user.password);
+    const match = password;
     if (!match) return res.status(400).json({ message: "Wrong password" });
 
     const token = generateToken(user._id);
@@ -63,6 +65,7 @@ export const loginUser = async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
+        phone: user.phone,
         email: user.email,
         role: user.role,
       },
