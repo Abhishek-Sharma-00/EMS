@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-   baseURL:"https://ems-backend-mwmg.onrender.com",
+   baseURL:"https://ems-backend-mwmg.onrender.com/api/auth",
 });
 
 API.interceptors.request.use((req) => {
