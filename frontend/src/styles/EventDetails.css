@@ -8,7 +8,14 @@
 }
 
 .back-button {
+  background: #2d58e6;
+  color: white;
   margin-bottom: 2rem;
+}
+
+.back-button:hover {
+   background: #1e40af;
+   color: white;
 }
 
 .event-details-content {

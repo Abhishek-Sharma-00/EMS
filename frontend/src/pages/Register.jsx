@@ -24,8 +24,85 @@ export default function Register() {
   const { user, logout } = useAuth();
   const [open, setOpen] = React.useState(false);
 
+  const validateEmailDomain = (email) => {
+    const allowedDomains = [
+      "gmail.com",
+      "yahoo.com",
+      "outlook.com",
+      "hotmail.com",
+      "icloud.com",
+      "protonmail.com",
+      "live.com",
+    ];
+
+    const emailParts = email.split("@");
+    if (emailParts.length !== 2) return false;
+
+    const domain = emailParts[1].toLowerCase();
+    return allowedDomains.includes(domain);
+  };
+
+  const validateInputs = () => {
+    // NAME
+    if (!/^[A-Za-z\s]{3,30}$/.test(name)) {
+      toast.error("Name must be 3–30 letters only");
+      return false;
+    }
+
+    // EMAIL BASIC CHECK
+    if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)) {
+      toast.error("Invalid email format.");
+      return false;
+    }
+
+    // EMAIL DOMAIN CHECK
+    if (!validateEmailDomain(email)) {
+      toast.error(
+        "Only valid email providers allowed (Gmail, Yahoo, Outlook, Hotmail, iCloud, Live, ProtonMail)."
+      );
+      return false;
+    }
+
+    // PHONE
+    if (!/^[0-9]{10}$/.test(phone)) {
+      toast.error("Phone number must be exactly 10 digits");
+      return false;
+    }
+
+    // PASSWORD VALIDATION (separate errors)
+    if (password.length < 8) {
+      toast.error("Password must contain at least 8 characters.");
+      return false;
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      toast.error("Password must contain at least one uppercase letter (A-Z).");
+      return false;
+    }
+
+    if (!/[a-z]/.test(password)) {
+      toast.error("Password must contain at least one lowercase letter (a-z).");
+      return false;
+    }
+
+    if (!/[0-9]/.test(password)) {
+      toast.error("Password must contain at least one number (0-9).");
+      return false;
+    }
+
+    if (!/[@$!%*?&#]/.test(password)) {
+      toast.error(
+        "Password must contain at least one special character (@$!%*?&#)."
+      );
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateInputs()) return;
     setLoading(true);
 
     try {
@@ -33,7 +110,12 @@ export default function Register() {
       toast.success("Registration successful!");
       navigate("/");
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Registration failed");
+      const errMsg =
+        error.response?.data?.message ||
+        error.response?.data?.detail ||
+        "Registration failed";
+
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }

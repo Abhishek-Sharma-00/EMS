@@ -29,7 +29,11 @@ export default function Login() {
       toast.success("Login successful!");
       navigate("/");
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Login failed");
+      const errMsg =
+        error.response?.data?.message ||
+        error.response?.data?.detail ||
+        "Login failed";
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }

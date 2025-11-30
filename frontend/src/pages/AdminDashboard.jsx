@@ -205,7 +205,7 @@ export default function AdminDashboard() {
                   {user.role === "admin" && (
                     <span className="user-badge">Admin</span>
                   )}
-                  {user.role === "ateendee" && (
+                  {user.role === "attendee" && (
                     <span className="user-badge">Attendee</span>
                   )}
                 </div>
