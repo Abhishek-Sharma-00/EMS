@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import "@/styles/AttendeeDashboard.css";
 import logo from "../assets/EventUs-logo.png";
 
-const API = "https://ems-backend-mwmg.onrender.com";
+const API = "https://ems-backend-mwmg.onrender.com/api";
 
 export default function AttendeeDashboard() {
   const navigate = useNavigate();
