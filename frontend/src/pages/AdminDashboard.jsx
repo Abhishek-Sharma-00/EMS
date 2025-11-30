@@ -19,7 +19,7 @@ import axios from "axios";
 import "@/styles/AdminDashboard.css";
 import logo from "../assets/EventUs-logo.png";
 
-const API = "http://localhost:5000/api";
+const API = "https://ems-backend-mwmg.onrender.com";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
